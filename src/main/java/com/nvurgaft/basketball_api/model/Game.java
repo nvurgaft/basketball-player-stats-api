@@ -16,5 +16,5 @@ public class Game {
     private Team homeTeam;
     private Team awayTeam;
     private int season;
-    private ZonedDateTime dateTime;
+    private ZonedDateTime playedAt;
 }

@@ -1,7 +1,9 @@
 package com.nvurgaft.basketball_api.controllers;
 
 import com.nvurgaft.basketball_api.model.Player;
+import com.nvurgaft.basketball_api.model.Team;
 import com.nvurgaft.basketball_api.services.PlayerService;
+import com.nvurgaft.basketball_api.services.TeamService;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.AfterAll;
@@ -29,6 +31,9 @@ public class PlayerControllerTest {
 
     @Autowired
     private PlayerService playerService;
+
+    @Autowired
+    private TeamService teamService;
 
     static PostgreSQLContainer<?> pgContainer = new PostgreSQLContainer<>(
             "postgres:17-alpine"
@@ -59,10 +64,13 @@ public class PlayerControllerTest {
 
     @Test
     void shouldGetAllPlayers() {
+        Team team = new Team(UUID.randomUUID(), "Chicago Bulls");
+        teamService.addTeam(team);
+
         List<Player> players = List.of(
-                new Player(UUID.randomUUID(), "Michael", "Jordan", "Chicago Bulls"),
-                new Player(UUID.randomUUID(), "Scottie", "Pippen", "Chicago Bulls"),
-                new Player(UUID.randomUUID(), "Dennis", "Rodman", "Chicago Bulls")
+                new Player(UUID.randomUUID(), "Michael", "Jordan", team),
+                new Player(UUID.randomUUID(), "Scottie", "Pippen", team),
+                new Player(UUID.randomUUID(), "Dennis", "Rodman", team)
         );
         playerService.addPlayers(players);
 
@@ -77,9 +85,12 @@ public class PlayerControllerTest {
 
     @Test
     void shouldGetPlayerById() {
-        Player player1 = new Player(UUID.randomUUID(), "Michael", "Jordan", "Chicago Bulls");
-        Player player2 = new Player(UUID.randomUUID(), "Scottie", "Pippen", "Chicago Bulls");
-        Player player3 = new Player(UUID.randomUUID(), "Dennis", "Rodman", "Chicago Bulls");
+        Team team = new Team(UUID.randomUUID(), "Chicago Bulls");
+        teamService.addTeam(team);
+
+        Player player1 = new Player(UUID.randomUUID(), "Michael", "Jordan", team);
+        Player player2 = new Player(UUID.randomUUID(), "Scottie", "Pippen", team);
+        Player player3 = new Player(UUID.randomUUID(), "Dennis", "Rodman", team);
         playerService.addPlayers(List.of(player1, player2, player3));
 
         given()

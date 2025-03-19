@@ -21,7 +21,7 @@ public class JdbcTeamRepository implements GenericRepository<Team, UUID> {
     @Override
     public int save(Team team) {
         return jdbcTemplate.update("INSERT INTO teams (id, name) VALUES (?, ?)",
-                UUID.randomUUID(), team.getName());
+                team.getId(), team.getName());
     }
 
     @Override

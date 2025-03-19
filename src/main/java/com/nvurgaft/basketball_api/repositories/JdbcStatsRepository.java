@@ -1,8 +1,6 @@
 package com.nvurgaft.basketball_api.repositories;
 
-import com.nvurgaft.basketball_api.mappers.PlayerRowMapper;
 import com.nvurgaft.basketball_api.mappers.PlayerStatsRowMapper;
-import com.nvurgaft.basketball_api.model.Player;
 import com.nvurgaft.basketball_api.model.PlayerGameStats;
 import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -21,7 +19,7 @@ public class JdbcStatsRepository implements GenericRepository<PlayerGameStats, U
     @Override
     public int save(PlayerGameStats stats) {
         return jdbcTemplate.update("INSERT INTO stats (id, player, game, stats) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                UUID.randomUUID(), stats.getId(), stats.getPlayer(),
+                stats.getId(), stats.getId(), stats.getPlayer(),
                 stats.getPoints(), stats.getRebounds(), stats.getAssists(), stats.getSteals(), stats.getBlocks(),
                 stats.getFouls(), stats.getTurnovers(), stats.getMinutesPlayed());
     }

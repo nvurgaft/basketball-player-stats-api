@@ -25,12 +25,12 @@ public class TeamService {
         return repository.findAll();
     }
 
-    public boolean addNewTeam(@NonNull Team team) {
+    public boolean addTeam(@NonNull Team team) {
         int result = repository.save(team);
         return result == 1;
     }
 
-    public boolean addNewTeams(@NonNull List<Team> team) {
+    public boolean addTeams(@NonNull List<Team> team) {
         int result = repository.saveAll(team);
         return result == 1;
     }

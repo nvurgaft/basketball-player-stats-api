@@ -65,7 +65,7 @@ public class TeamControllerTest {
                 new Team(UUID.randomUUID(), "Charlotte Hornets"),
                 new Team(UUID.randomUUID(), "New York Knicks")
         );
-        teamService.addNewTeams(teams);
+        teamService.addTeams(teams);
 
         given()
                 .contentType(ContentType.JSON)
@@ -80,7 +80,7 @@ public class TeamControllerTest {
     void shouldGetPlayerById() {
         Team team1 = new Team(UUID.randomUUID(), "Miami Heat");
         Team team2 = new Team(UUID.randomUUID(), "Los Angeles Lakers");
-        teamService.addNewTeams(List.of(team1, team2));
+        teamService.addTeams(List.of(team1, team2));
 
         given()
                 .contentType(ContentType.JSON)
