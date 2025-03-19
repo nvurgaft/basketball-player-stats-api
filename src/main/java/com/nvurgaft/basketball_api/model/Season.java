@@ -2,16 +2,13 @@ package com.nvurgaft.basketball_api.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class Player {
+public class Season {
 
     private UUID id;
-    private String name;
-    private String surname;
+    private int year;
 }

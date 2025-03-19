@@ -58,7 +58,7 @@ public class TeamControllerTest {
     }
 
     @Test
-    void shouldGetAllPlayers() {
+    void shouldGetAllTeams() {
         List<Team> teams = List.of(
                 new Team(UUID.randomUUID(), "Chicago Bulls"),
                 new Team(UUID.randomUUID(), "Miami Heat"),
@@ -77,7 +77,7 @@ public class TeamControllerTest {
     }
 
     @Test
-    void shouldGetPlayerById() {
+    void shouldGetTeamById() {
         Team team1 = new Team(UUID.randomUUID(), "Miami Heat");
         Team team2 = new Team(UUID.randomUUID(), "Los Angeles Lakers");
         teamService.addTeams(List.of(team1, team2));

@@ -1,7 +1,6 @@
 package com.nvurgaft.basketball_api.services;
 
 import com.nvurgaft.basketball_api.model.Team;
-import com.nvurgaft.basketball_api.repositories.GenericRepository;
 import com.nvurgaft.basketball_api.repositories.JdbcTeamRepository;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;

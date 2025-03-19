@@ -68,9 +68,9 @@ public class PlayerControllerTest {
         teamService.addTeam(team);
 
         List<Player> players = List.of(
-                new Player(UUID.randomUUID(), "Michael", "Jordan", team),
-                new Player(UUID.randomUUID(), "Scottie", "Pippen", team),
-                new Player(UUID.randomUUID(), "Dennis", "Rodman", team)
+                new Player(UUID.randomUUID(), "Michael", "Jordan"),
+                new Player(UUID.randomUUID(), "Scottie", "Pippen"),
+                new Player(UUID.randomUUID(), "Dennis", "Rodman")
         );
         playerService.addPlayers(players);
 
@@ -88,9 +88,9 @@ public class PlayerControllerTest {
         Team team = new Team(UUID.randomUUID(), "Chicago Bulls");
         teamService.addTeam(team);
 
-        Player player1 = new Player(UUID.randomUUID(), "Michael", "Jordan", team);
-        Player player2 = new Player(UUID.randomUUID(), "Scottie", "Pippen", team);
-        Player player3 = new Player(UUID.randomUUID(), "Dennis", "Rodman", team);
+        Player player1 = new Player(UUID.randomUUID(), "Michael", "Jordan");
+        Player player2 = new Player(UUID.randomUUID(), "Scottie", "Pippen");
+        Player player3 = new Player(UUID.randomUUID(), "Dennis", "Rodman");
         playerService.addPlayers(List.of(player1, player2, player3));
 
         given()

@@ -9,11 +9,12 @@ import java.util.UUID;
 @Log4j2
 @Data
 @AllArgsConstructor
-public class PlayerGameStats {
+public class PlayerStats {
 
     private UUID id;
     private Player player;
-    private Game game;
+    private Team team;
+    private Season season;
 
     private int points;
     private int rebounds;

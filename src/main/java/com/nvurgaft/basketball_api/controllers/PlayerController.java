@@ -1,7 +1,7 @@
 package com.nvurgaft.basketball_api.controllers;
 
 import com.nvurgaft.basketball_api.model.Player;
-import com.nvurgaft.basketball_api.model.PlayerGameStats;
+import com.nvurgaft.basketball_api.model.PlayerStats;
 import com.nvurgaft.basketball_api.services.PlayerService;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -11,7 +11,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Optional;
@@ -53,13 +52,8 @@ public class PlayerController {
         }
     }
 
-    @GetMapping("/game/{id}")
-    public ResponseEntity<PlayerGameStats> getPlayerGameStats() {
-        return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-    }
-
     @GetMapping("/season/{id}")
-    public ResponseEntity<PlayerGameStats> getPlayerSeasonStats() {
+    public ResponseEntity<PlayerStats> getPlayerSeasonStats() {
         return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
     }
 

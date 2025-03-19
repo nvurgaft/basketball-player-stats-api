@@ -1,13 +1,14 @@
 package com.nvurgaft.basketball_api.repositories;
 
-import com.nvurgaft.basketball_api.mappers.TeamRowMapper;
-import com.nvurgaft.basketball_api.model.Player;
 import com.nvurgaft.basketball_api.model.Team;
 import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -63,5 +64,14 @@ public class JdbcTeamRepository implements GenericRepository<Team, UUID> {
     @Override
     public int deleteAll() {
         return jdbcTemplate.update("DELETE from teams");
+    }
+
+    private static class TeamRowMapper implements RowMapper<Team> {
+        @Override
+        public Team mapRow(ResultSet rs, int rowNum) throws SQLException {
+            UUID id = rs.getObject("id", UUID.class);
+            String name = rs.getString("name");
+            return new Team(id, name);
+        }
     }
 }

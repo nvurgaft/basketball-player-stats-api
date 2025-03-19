@@ -1,7 +1,6 @@
 package com.nvurgaft.basketball_api.repositories;
 
 import com.nvurgaft.basketball_api.model.Player;
-import com.nvurgaft.basketball_api.model.Team;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -24,8 +23,8 @@ public class JdbcPlayerRepository implements GenericRepository<Player, UUID> {
 
     @Override
     public int save(Player player) {
-        return jdbcTemplate.update("INSERT INTO players (id, name, surname, team_id) VALUES (?, ?, ?, ?)",
-                player.getId(), player.getName(), player.getSurname(), player.getTeam().getId());
+        return jdbcTemplate.update("INSERT INTO players (id, name, surname) VALUES (?, ?, ?)",
+                player.getId(), player.getName(), player.getSurname());
     }
 
     @Override
@@ -37,33 +36,26 @@ public class JdbcPlayerRepository implements GenericRepository<Player, UUID> {
                     ps.setObject(1, player.getId());
                     ps.setString(2, player.getName());
                     ps.setString(3, player.getSurname());
-                    ps.setObject(4, player.getTeam().getId());
                 });
         return players.size();
     }
 
     @Override
     public int update(Player player) {
-        return jdbcTemplate.update("UPDATE players SET name=?, surname=?, team_id=? WHERE id=?",
-                player.getName(), player.getSurname(), player.getTeam().getId());
+        return jdbcTemplate.update("UPDATE players SET name=?, surname=? WHERE id=?",
+                player.getName(), player.getSurname());
     }
 
     @Override
     public Optional<Player> findById(UUID id) {
-        Player player = jdbcTemplate.queryForObject("SELECT p.id, p.name, p.surname, p.team_id, " +
-                        "t.id, t.name " +
-                        "FROM players p " +
-                        "JOIN teams t ON p.team_id = t.id " +
-                        "WHERE p.id=?",
+        Player player = jdbcTemplate.queryForObject("SELECT * FROM players WHERE p.id=?",
                 new RowMapper<Player>() {
                     @Override
                     public Player mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        UUID id = rs.getObject(1, UUID.class);
-                        String name = rs.getString(2);
-                        String surname = rs.getString(3);
-                        UUID teamId = rs.getObject(4, UUID.class);
-                        String teamName = rs.getString(5);
-                        return new Player(id, name, surname, new Team(teamId, teamName));
+                        UUID id = rs.getObject("id", UUID.class);
+                        String name = rs.getString("name");
+                        String surname = rs.getString("surname");
+                        return new Player(id, name, surname);
                     }
                 }, id);
         return Optional.ofNullable(player);
@@ -76,19 +68,14 @@ public class JdbcPlayerRepository implements GenericRepository<Player, UUID> {
 
     @Override
     public List<Player> findAll() {
-        return jdbcTemplate.query("SELECT p.id, p.name, p.surname, p.team_id, " +
-                        "t.id, t.name " +
-                        "FROM players p " +
-                        "JOIN teams t ON p.team_id = t.id",
+        return jdbcTemplate.query("SELECT * FROM players",
                 new RowMapper<Player>() {
                     @Override
                     public Player mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        UUID id = rs.getObject(1, UUID.class);
-                        String name = rs.getString(2);
-                        String surname = rs.getString(3);
-                        UUID teamId = rs.getObject(4, UUID.class);
-                        String teamName = rs.getString(5);
-                        return new Player(id, name, surname, new Team(teamId, teamName));
+                        UUID id = rs.getObject("id", UUID.class);
+                        String name = rs.getString("name");
+                        String surname = rs.getString("surname");
+                        return new Player(id, name, surname);
                     }
                 });
     }
@@ -97,4 +84,5 @@ public class JdbcPlayerRepository implements GenericRepository<Player, UUID> {
     public int deleteAll() {
         return jdbcTemplate.update("DELETE from players");
     }
+
 }
