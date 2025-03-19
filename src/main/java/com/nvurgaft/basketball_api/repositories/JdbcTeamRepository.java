@@ -1,0 +1,67 @@
+package com.nvurgaft.basketball_api.repositories;
+
+import com.nvurgaft.basketball_api.mappers.TeamRowMapper;
+import com.nvurgaft.basketball_api.model.Player;
+import com.nvurgaft.basketball_api.model.Team;
+import lombok.AllArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+import java.sql.PreparedStatement;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@AllArgsConstructor
+@Repository
+public class JdbcTeamRepository implements GenericRepository<Team, UUID> {
+
+    private JdbcTemplate jdbcTemplate;
+
+    @Override
+    public int save(Team team) {
+        return jdbcTemplate.update("INSERT INTO teams (id, name) VALUES (?, ?)",
+                UUID.randomUUID(), team.getName());
+    }
+
+    @Override
+    public int saveAll(List<Team> teams) {
+        jdbcTemplate.batchUpdate("INSERT INTO teams (id, name) VALUES (?, ?)",
+                teams,
+                100,
+                (PreparedStatement ps, Team team) -> {
+                    ps.setObject(1, team.getId());
+                    ps.setString(2, team.getName());
+                });
+        return teams.size();
+    }
+
+    @Override
+    public int update(Team team) {
+        return jdbcTemplate.update("UPDATE teams SET name=? WHERE id=?",
+                team.getName());
+    }
+
+    @Override
+    public Optional<Team> findById(UUID id) {
+        Team team = jdbcTemplate.queryForObject("SELECT * FROM teams WHERE id=?",
+                new TeamRowMapper(), id);
+        return Optional.ofNullable(team);
+    }
+
+    @Override
+    public int deleteById(UUID id) {
+        return jdbcTemplate.update("DELETE FROM teams WHERE id=?", id.toString());
+    }
+
+    @Override
+    public List<Team> findAll() {
+        return jdbcTemplate.query("SELECT * from teams",
+                new TeamRowMapper());
+    }
+
+    @Override
+    public int deleteAll() {
+        return jdbcTemplate.update("DELETE from teams");
+    }
+}
