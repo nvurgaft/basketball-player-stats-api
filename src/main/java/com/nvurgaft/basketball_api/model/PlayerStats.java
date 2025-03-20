@@ -2,28 +2,53 @@ package com.nvurgaft.basketball_api.model;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.extern.log4j.Log4j2;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
-@Log4j2
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 public class PlayerStats {
 
+    @NotNull(message = "Id cannot be null")
     private UUID id;
+
+    @NotNull(message = "Player cannot be null")
     private Player player;
+
+    @NotNull(message = "Team cannot be null")
     private Team team;
+
+    @Min(value = 1800, message = "Season should not be less than 1800")
     private int season;
 
+    @Min(value = 0, message = "Points should not be less than 0")
     private int points;
+
+    @Min(value = 0, message = "Rebounds should not be less than 0")
     private int rebounds;
+
+    @Min(value = 0, message = "Assists should not be less than 0")
     private int assists;
+
+    @Min(value = 0, message = "Steals should not be less than 0")
     private int steals;
+
+    @Min(value = 0, message = "Blocks should not be less than 0")
     private int blocks;
-    private int fouls; // max value is 6
+
+    @Min(value = 0, message = "Fouls should not be less than 0")
+    @Max(value = 6, message = "Fouls should be not be greater than 6")
+    private int fouls;
+
+    @Min(value = 0, message = "Turnovers should not be less than 0")
     private int turnovers;
-    private float minutesPlayed; // between 0 and 48.0
+
+    @Min(value = 0, message = "Minutes played should not be less than 0")
+    @Max(value = 48, message = "Minutes played should not be greater than 48")
+    private float minutesPlayed;
 }

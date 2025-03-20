@@ -3,14 +3,15 @@ package com.nvurgaft.basketball_api.controllers;
 import com.nvurgaft.basketball_api.model.PlayerStats;
 import com.nvurgaft.basketball_api.model.StatsAggregation;
 import com.nvurgaft.basketball_api.services.StatsService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +35,24 @@ public class StatsController {
             return new ResponseEntity<>(stats, HttpStatus.OK);
         } catch (Throwable t) {
             log.error("Failed fetching teams", t);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @PostMapping(value = "/", produces = MediaType.TEXT_PLAIN_VALUE)
+    public ResponseEntity<String> storeStats(
+            @Valid @NotNull(message = "Player stats cannot be null") @RequestBody PlayerStats playerStats
+    ) {
+        try {
+            boolean stored = statsService.addStat(playerStats);
+            if (!stored) {
+                log.error("Failed storing player statistics");
+                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+            return new ResponseEntity<>("ok", HttpStatus.OK);
+        } catch (Throwable t) {
+            log.error("Failed storing player statistics", t);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

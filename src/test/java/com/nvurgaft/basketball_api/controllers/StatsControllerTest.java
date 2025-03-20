@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -93,6 +94,28 @@ public class StatsControllerTest {
                 .then()
                 .statusCode(200)
                 .body(".", hasSize(2));
+    }
+
+    @Test
+    void shouldFailValidation() {
+        Player player = new Player(UUID.randomUUID(), "Michael", "Jordan");
+        Team team = new Team(UUID.randomUUID(), "Washington Wizards");
+
+        PlayerStats playerStats = new PlayerStats(UUID.randomUUID(),
+                player, team,
+                1998, 22, 4, 2, 6, 12, 999, 1, 24);
+
+        playerService.addPlayer(player);
+        teamService.addTeam(team);
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(playerStats)
+                .when()
+                .post("/api/v1/stats/")
+                .then()
+                .statusCode(400)
+                .contentType(ContentType.JSON);
     }
 
     @Test

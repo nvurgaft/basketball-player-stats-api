@@ -23,7 +23,7 @@ public class JdbcStatsRepository implements GenericRepository<PlayerStats, UUID>
     public int save(PlayerStats stats) {
         return jdbcTemplate.update("INSERT INTO stats (id, player_id, team_id, season, points, rebounds, assists, steals, blocks, fouls, turnovers, minutes_played) " +
                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                stats.getId(), stats.getPlayer().getId(), stats.getSeason(),
+                stats.getId(), stats.getPlayer().getId(), stats.getTeam().getId(), stats.getSeason(),
                 stats.getPoints(), stats.getRebounds(), stats.getAssists(), stats.getSteals(), stats.getBlocks(),
                 stats.getFouls(), stats.getTurnovers(), stats.getMinutesPlayed());
     }
