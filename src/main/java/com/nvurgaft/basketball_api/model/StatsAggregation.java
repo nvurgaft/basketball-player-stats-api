@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 /**
  * This class is used to store aggregate calculation on player game statistics such as player season average or
  * team season average
@@ -14,9 +12,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 public class StatsAggregation {
-    private UUID id;
-    private AggregationType type;
-
     private float points;
     private float rebounds;
     private float assists;

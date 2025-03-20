@@ -1,9 +1,13 @@
 package com.nvurgaft.basketball_api.services;
 
 import com.nvurgaft.basketball_api.model.PlayerStats;
+import com.nvurgaft.basketball_api.model.StatsAggregation;
 import com.nvurgaft.basketball_api.repositories.JdbcStatsRepository;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +20,17 @@ public class StatsService {
 
     private JdbcStatsRepository repository;
 
+    @Cacheable(value = "stats", key = "#player.id")
+    public Optional<StatsAggregation> getPlayerSeasonAverage(UUID playerId, int seasonYear) {
+        return repository.getPlayerSeasonAverage(playerId, seasonYear);
+    }
+
+    @Cacheable(value = "stats", key = "#teamId + '-' + #seasonYear")
+    public Optional<StatsAggregation> getTeamSeasonAverage(UUID teamId, int seasonYear) {
+        return repository.getTeamSeasonAverage(teamId, seasonYear);
+    }
+
+    @Cacheable(value = "stats", key = "#stat.id")
     public Optional<PlayerStats> getStatsById(@NonNull UUID id) {
         return repository.findById(id);
     }
@@ -34,16 +49,19 @@ public class StatsService {
         return result == 1;
     }
 
+    @CachePut(cacheNames="stats", key="#stat.id")
     public boolean updateStat(@NonNull PlayerStats stat) {
         int result = repository.update(stat);
         return result == 1;
     }
 
+    @CacheEvict(value = "stats", key = "#stat.id")
     public boolean deleteStat(@NonNull UUID id) {
         int result = repository.deleteById(id);
         return result == 1;
     }
 
+    @CacheEvict(value = "stats", allEntries = true)
     public void deleteAll() {
         repository.deleteAll();
     }

@@ -1,8 +1,6 @@
 package com.nvurgaft.basketball_api.repositories;
 
-import com.nvurgaft.basketball_api.model.Player;
-import com.nvurgaft.basketball_api.model.PlayerStats;
-import com.nvurgaft.basketball_api.model.Team;
+import com.nvurgaft.basketball_api.model.*;
 import lombok.AllArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -85,6 +83,29 @@ public class JdbcStatsRepository implements GenericRepository<PlayerStats, UUID>
                 new PlayerStatsJoinRowMapper());
     }
 
+    public Optional<StatsAggregation> getPlayerSeasonAverage(UUID playerId, int season) {
+        StatsAggregation aggregation = jdbcTemplate.queryForObject("SELECT " +
+                        "AVG(s.points), AVG(s.rebounds), AVG(s.assists), AVG(s.steals), AVG(s.blocks), AVG(s.fouls), AVG(s.turnovers), AVG(s.minutes_played) " +
+                        "FROM stats s " +
+                        "JOIN players p ON s.player_id = p.id " +
+                        "JOIN teams t ON s.team_id = t.id " +
+                        "WHERE p.id = ? AND s.season = ?;",
+                new StatsAggregationRowMapper(), playerId, season);
+        return Optional.ofNullable(aggregation);
+    }
+
+
+    public Optional<StatsAggregation> getTeamSeasonAverage(UUID teamId, int season) {
+        StatsAggregation aggregation = jdbcTemplate.queryForObject("SELECT " +
+                        "AVG(s.points), AVG(s.rebounds), AVG(s.assists), AVG(s.steals), AVG(s.blocks), AVG(s.fouls), AVG(s.turnovers), AVG(s.minutes_played) " +
+                        "FROM stats s " +
+                        "JOIN players p ON s.player_id = p.id " +
+                        "JOIN teams t ON s.team_id = t.id " +
+                        "WHERE t.id = ? AND s.season = ?;",
+                new StatsAggregationRowMapper(), teamId, season);
+        return Optional.ofNullable(aggregation);
+    }
+
     @Override
     public int deleteById(UUID id) {
         return jdbcTemplate.update("DELETE FROM stats WHERE id=?", id.toString());
@@ -93,6 +114,22 @@ public class JdbcStatsRepository implements GenericRepository<PlayerStats, UUID>
     @Override
     public int deleteAll() {
         return jdbcTemplate.update("DELETE from stats");
+    }
+
+    private static class StatsAggregationRowMapper implements RowMapper<StatsAggregation> {
+
+        @Override
+        public StatsAggregation mapRow(ResultSet rs, int rowNum) throws SQLException {
+            float points = rs.getFloat(1);
+            float rebounds = rs.getFloat(2);
+            float assists = rs.getFloat(3);
+            float steals = rs.getFloat(4);
+            float blocks = rs.getFloat(5);
+            float fouls = rs.getFloat(6);
+            float turnovers = rs.getFloat(7);
+            float minutesPlayed = rs.getFloat(8);
+            return new StatsAggregation(points, rebounds, assists, steals, blocks, fouls, turnovers, minutesPlayed);
+        }
     }
 
     private static class PlayerStatsJoinRowMapper implements RowMapper<PlayerStats> {

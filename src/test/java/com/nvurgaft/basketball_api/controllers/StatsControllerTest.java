@@ -2,16 +2,14 @@ package com.nvurgaft.basketball_api.controllers;
 
 import com.nvurgaft.basketball_api.model.Player;
 import com.nvurgaft.basketball_api.model.PlayerStats;
+import com.nvurgaft.basketball_api.model.StatsAggregation;
 import com.nvurgaft.basketball_api.model.Team;
 import com.nvurgaft.basketball_api.services.PlayerService;
 import com.nvurgaft.basketball_api.services.StatsService;
 import com.nvurgaft.basketball_api.services.TeamService;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -95,6 +93,90 @@ public class StatsControllerTest {
                 .then()
                 .statusCode(200)
                 .body(".", hasSize(2));
+    }
+
+    @Test
+    void shouldGetPlayerSeasonAverage() {
+        Player player = new Player(UUID.randomUUID(), "Michael", "Jordan");
+        Team team = new Team(UUID.randomUUID(), "Chicago Bulls");
+        int season = 1999;
+
+        List<PlayerStats> stats = List.of(
+                new PlayerStats(UUID.randomUUID(), player,
+                        team,
+                        season,
+                        22, 4, 2, 6, 12, 4, 1, 24),
+                new PlayerStats(UUID.randomUUID(), player,
+                        team,
+                        season,
+                        17, 4, 2, 6, 16, 2, 2, 47)
+        );
+        playerService.addPlayer(player);
+        teamService.addTeam(team);
+        statsService.addStats(stats);
+
+        statsService.getPlayerSeasonAverage(player.getId(), season);
+
+        StatsAggregation responseBody = given()
+                .contentType(ContentType.JSON)
+                .queryParam("playerId", player.getId().toString())
+                .queryParam("season", season)
+                .when()
+                .get("/api/v1/stats/player/average")
+                .as(StatsAggregation.class);
+
+        Assertions.assertEquals(3, responseBody.getFouls(), 0.1);
+        Assertions.assertEquals(4, responseBody.getRebounds(), 0.1);
+        Assertions.assertEquals(14, responseBody.getBlocks(), 0.1);
+    }
+
+    @Test
+    void shouldGetTeamSeasonAverage() {
+        Player michaelJordan = new Player(UUID.randomUUID(), "Michael", "Jordan");
+        Player dennisRodman = new Player(UUID.randomUUID(), "Dennis", "Rodman");
+        Player scottiePippen = new Player(UUID.randomUUID(), "Scottie", "Pippen");
+        Team chicagoBulls = new Team(UUID.randomUUID(), "Chicago Bulls");
+        int season = 1999;
+
+        List<PlayerStats> stats = List.of(
+                new PlayerStats(UUID.randomUUID(), michaelJordan,
+                        chicagoBulls,
+                        season,
+                        34, 4, 2, 6, 9, 2, 1, 24),
+                new PlayerStats(UUID.randomUUID(), michaelJordan,
+                        chicagoBulls,
+                        season,
+                        31, 3, 2, 6, 13, 1, 2, 47),
+                new PlayerStats(UUID.randomUUID(), dennisRodman,
+                        chicagoBulls,
+                        season,
+                        22, 7, 2, 6, 12, 4, 1, 24),
+                new PlayerStats(UUID.randomUUID(), dennisRodman,
+                        chicagoBulls,
+                        season,
+                        17, 11, 2, 6, 16, 5, 2, 47),
+                new PlayerStats(UUID.randomUUID(), scottiePippen,
+                        chicagoBulls,
+                        season,
+                        24, 5, 2, 6, 8, 1, 1, 24)
+        );
+        playerService.addPlayers(List.of(michaelJordan, dennisRodman, scottiePippen));
+        teamService.addTeam(chicagoBulls);
+        statsService.addStats(stats);
+
+        statsService.getTeamSeasonAverage(chicagoBulls.getId(), season);
+
+        StatsAggregation responseBody = given()
+                .contentType(ContentType.JSON)
+                .queryParam("teamId", chicagoBulls.getId().toString())
+                .queryParam("season", season)
+                .when()
+                .get("/api/v1/stats/team/average")
+                .as(StatsAggregation.class);
+
+        Assertions.assertEquals(2.6, responseBody.getFouls(), 0.1);
+        Assertions.assertEquals(6, responseBody.getRebounds(), 0.1);
+        Assertions.assertEquals(11.6, responseBody.getBlocks(), 0.1);
     }
 
 }
