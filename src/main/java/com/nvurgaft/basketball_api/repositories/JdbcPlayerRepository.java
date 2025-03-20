@@ -29,7 +29,7 @@ public class JdbcPlayerRepository implements GenericRepository<Player, UUID> {
 
     @Override
     public int saveAll(List<Player> players) {
-        jdbcTemplate.batchUpdate("INSERT INTO players (id, name, surname, team_id) VALUES (?, ?, ?, ?)",
+        jdbcTemplate.batchUpdate("INSERT INTO players (id, name, surname) VALUES (?, ?, ?)",
                 players,
                 100,
                 (PreparedStatement ps, Player player) -> {
@@ -48,16 +48,8 @@ public class JdbcPlayerRepository implements GenericRepository<Player, UUID> {
 
     @Override
     public Optional<Player> findById(UUID id) {
-        Player player = jdbcTemplate.queryForObject("SELECT * FROM players WHERE p.id=?",
-                new RowMapper<Player>() {
-                    @Override
-                    public Player mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        UUID id = rs.getObject("id", UUID.class);
-                        String name = rs.getString("name");
-                        String surname = rs.getString("surname");
-                        return new Player(id, name, surname);
-                    }
-                }, id);
+        Player player = jdbcTemplate.queryForObject("SELECT * FROM players WHERE id=?",
+                new PlayerRowMapper(), id);
         return Optional.ofNullable(player);
     }
 
@@ -69,15 +61,7 @@ public class JdbcPlayerRepository implements GenericRepository<Player, UUID> {
     @Override
     public List<Player> findAll() {
         return jdbcTemplate.query("SELECT * FROM players",
-                new RowMapper<Player>() {
-                    @Override
-                    public Player mapRow(ResultSet rs, int rowNum) throws SQLException {
-                        UUID id = rs.getObject("id", UUID.class);
-                        String name = rs.getString("name");
-                        String surname = rs.getString("surname");
-                        return new Player(id, name, surname);
-                    }
-                });
+                new PlayerRowMapper());
     }
 
     @Override
@@ -85,4 +69,13 @@ public class JdbcPlayerRepository implements GenericRepository<Player, UUID> {
         return jdbcTemplate.update("DELETE from players");
     }
 
+    private static class PlayerRowMapper implements RowMapper<Player> {
+        @Override
+        public Player mapRow(ResultSet rs, int rowNum) throws SQLException {
+            UUID id = rs.getObject("id", UUID.class);
+            String name = rs.getString("name");
+            String surname = rs.getString("surname");
+            return new Player(id, name, surname);
+        }
+    }
 }

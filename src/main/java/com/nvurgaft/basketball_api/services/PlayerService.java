@@ -35,7 +35,7 @@ public class PlayerService {
         repository.saveAll(players);
     }
 
-    public void addNewPlayer(@NonNull Player player) {
+    public void addPlayer(@NonNull Player player) {
         repository.save(player);
     }
 

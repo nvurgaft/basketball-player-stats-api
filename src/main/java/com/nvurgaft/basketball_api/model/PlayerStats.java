@@ -14,7 +14,7 @@ public class PlayerStats {
     private UUID id;
     private Player player;
     private Team team;
-    private Season season;
+    private int season;
 
     private int points;
     private int rebounds;
