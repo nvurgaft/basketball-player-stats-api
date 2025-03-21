@@ -23,19 +23,18 @@ public class JdbcPlayerRepository implements GenericRepository<Player, UUID> {
 
     @Override
     public int save(Player player) {
-        return jdbcTemplate.update("INSERT INTO players (id, name, surname) VALUES (?, ?, ?)",
-                player.getId(), player.getName(), player.getSurname());
+        return jdbcTemplate.update("INSERT INTO players (name, surname) VALUES (?, ?)",
+                player.getName(), player.getSurname());
     }
 
     @Override
     public int saveAll(List<Player> players) {
-        jdbcTemplate.batchUpdate("INSERT INTO players (id, name, surname) VALUES (?, ?, ?)",
+        jdbcTemplate.batchUpdate("INSERT INTO players (name, surname) VALUES (?, ?)",
                 players,
                 100,
                 (PreparedStatement ps, Player player) -> {
-                    ps.setObject(1, player.getId());
-                    ps.setString(2, player.getName());
-                    ps.setString(3, player.getSurname());
+                    ps.setString(1, player.getName());
+                    ps.setString(2, player.getSurname());
                 });
         return players.size();
     }
@@ -53,6 +52,12 @@ public class JdbcPlayerRepository implements GenericRepository<Player, UUID> {
         return Optional.ofNullable(player);
     }
 
+    public Optional<Player> findByName(String name, String surname) {
+        Player player = jdbcTemplate.queryForObject("SELECT * FROM players WHERE name=? AND surname=?",
+                new PlayerRowMapper(), name, surname);
+        return Optional.ofNullable(player);
+    }
+
     @Override
     public int deleteById(UUID id) {
         return jdbcTemplate.update("DELETE FROM players WHERE id=?", id);
@@ -66,7 +71,7 @@ public class JdbcPlayerRepository implements GenericRepository<Player, UUID> {
 
     @Override
     public int deleteAll() {
-        return jdbcTemplate.update("DELETE from players");
+        return jdbcTemplate.update("TRUNCATE TABLE players RESTART IDENTITY CASCADE");
     }
 
     private static class PlayerRowMapper implements RowMapper<Player> {

@@ -19,9 +19,14 @@ public class TeamService {
 
     private JdbcTeamRepository repository;
 
-    @Cacheable(value = "teams", key="#team.id")
+    @Cacheable(value = "teams", key="#id")
     public Optional<Team> getTeamById(@NonNull UUID id) {
         return repository.findById(id);
+    }
+
+    @Cacheable(value = "teams", key="#name")
+    public Optional<Team> getTeamByName(@NonNull String name) {
+        return repository.findByName(name);
     }
 
     @Cacheable(value = "teams", key="'all'")
@@ -45,9 +50,9 @@ public class TeamService {
         return result == 1;
     }
 
-    @CacheEvict(value = "teams", key = "#team.id")
-    public boolean deleteTeam(@NonNull UUID teamId) {
-        int result = repository.deleteById(teamId);
+    @CacheEvict(value = "teams", key = "#id")
+    public boolean deleteTeam(@NonNull UUID id) {
+        int result = repository.deleteById(id);
         return result == 1;
     }
 

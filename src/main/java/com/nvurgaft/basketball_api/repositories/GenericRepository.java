@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * A generic repository interface to consolidate all required CRUD operations
- * needed from implementing repositories
+ * A generic repository interface to consolidate most needed CRUD operations
+ * from repositories
  *
  * @param <T> Entity type
  * @param <ID> ID type

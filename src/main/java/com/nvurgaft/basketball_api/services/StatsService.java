@@ -20,14 +20,9 @@ public class StatsService {
 
     private JdbcStatsRepository repository;
 
-    @Cacheable(value = "stats", key = "#player.id")
-    public Optional<StatsAggregation> getPlayerSeasonAverage(UUID playerId, int seasonYear) {
-        return repository.getPlayerSeasonAverage(playerId, seasonYear);
-    }
-
-    @Cacheable(value = "stats", key = "#teamId + '-' + #seasonYear")
-    public Optional<StatsAggregation> getTeamSeasonAverage(UUID teamId, int seasonYear) {
-        return repository.getTeamSeasonAverage(teamId, seasonYear);
+    @Cacheable(value = "stats", key = "#name + '-' + #surname")
+    public List<PlayerStats> getPlayerStats(String name, String surname) {
+        return repository.findByPlayerName(name, surname);
     }
 
     @Cacheable(value = "stats", key = "#stat.id")
@@ -49,7 +44,7 @@ public class StatsService {
         return result == 1;
     }
 
-    @CachePut(cacheNames="stats", key="#stat.id")
+    @CachePut(cacheNames = "stats", key = "#stat.id")
     public boolean updateStat(@NonNull PlayerStats stat) {
         int result = repository.update(stat);
         return result == 1;

@@ -21,18 +21,17 @@ public class JdbcTeamRepository implements GenericRepository<Team, UUID> {
 
     @Override
     public int save(Team team) {
-        return jdbcTemplate.update("INSERT INTO teams (id, name) VALUES (?, ?)",
-                team.getId(), team.getName());
+        return jdbcTemplate.update("INSERT INTO teams (name) VALUES (?)",
+                team.getName());
     }
 
     @Override
     public int saveAll(List<Team> teams) {
-        jdbcTemplate.batchUpdate("INSERT INTO teams (id, name) VALUES (?, ?)",
+        jdbcTemplate.batchUpdate("INSERT INTO teams (name) VALUES (?)",
                 teams,
                 100,
                 (PreparedStatement ps, Team team) -> {
-                    ps.setObject(1, team.getId());
-                    ps.setString(2, team.getName());
+                    ps.setString(1, team.getName());
                 });
         return teams.size();
     }
@@ -50,9 +49,10 @@ public class JdbcTeamRepository implements GenericRepository<Team, UUID> {
         return Optional.ofNullable(team);
     }
 
-    @Override
-    public int deleteById(UUID id) {
-        return jdbcTemplate.update("DELETE FROM teams WHERE id=?", id.toString());
+    public Optional<Team> findByName(String name) {
+        Team team = jdbcTemplate.queryForObject("SELECT * FROM teams WHERE name=?",
+                new TeamRowMapper(), name);
+        return Optional.ofNullable(team);
     }
 
     @Override
@@ -62,8 +62,13 @@ public class JdbcTeamRepository implements GenericRepository<Team, UUID> {
     }
 
     @Override
+    public int deleteById(UUID id) {
+        return jdbcTemplate.update("DELETE FROM teams WHERE id=?", id.toString());
+    }
+
+    @Override
     public int deleteAll() {
-        return jdbcTemplate.update("DELETE from teams");
+        return jdbcTemplate.update("TRUNCATE TABLE teams RESTART IDENTITY CASCADE");
     }
 
     private static class TeamRowMapper implements RowMapper<Team> {

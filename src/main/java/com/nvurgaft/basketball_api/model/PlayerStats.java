@@ -7,14 +7,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PlayerStats {
+public class PlayerStats implements Serializable {
 
-    @NotNull(message = "Id cannot be null")
     private UUID id;
 
     @NotNull(message = "Player cannot be null")
@@ -51,4 +51,18 @@ public class PlayerStats {
     @Min(value = 0, message = "Minutes played should not be less than 0")
     @Max(value = 48, message = "Minutes played should not be greater than 48")
     private float minutesPlayed;
+
+    public PlayerStats(Player player, Team team, int season, int points, int rebounds, int assists, int steals, int blocks, int fouls, int turnovers, float minutesPlayed) {
+        this.player = player;
+        this.team = team;
+        this.season = season;
+        this.points = points;
+        this.rebounds = rebounds;
+        this.assists = assists;
+        this.steals = steals;
+        this.blocks = blocks;
+        this.fouls = fouls;
+        this.turnovers = turnovers;
+        this.minutesPlayed = minutesPlayed;
+    }
 }

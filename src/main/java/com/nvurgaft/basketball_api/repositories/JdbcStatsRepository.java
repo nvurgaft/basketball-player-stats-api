@@ -21,32 +21,31 @@ public class JdbcStatsRepository implements GenericRepository<PlayerStats, UUID>
 
     @Override
     public int save(PlayerStats stats) {
-        return jdbcTemplate.update("INSERT INTO stats (id, player_id, team_id, season, points, rebounds, assists, steals, blocks, fouls, turnovers, minutes_played) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                stats.getId(), stats.getPlayer().getId(), stats.getTeam().getId(), stats.getSeason(),
+        return jdbcTemplate.update("INSERT INTO stats (player_id, team_id, season, points, rebounds, assists, steals, blocks, fouls, turnovers, minutes_played) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                stats.getPlayer().getId(), stats.getTeam().getId(), stats.getSeason(),
                 stats.getPoints(), stats.getRebounds(), stats.getAssists(), stats.getSteals(), stats.getBlocks(),
                 stats.getFouls(), stats.getTurnovers(), stats.getMinutesPlayed());
     }
 
     @Override
     public int saveAll(List<PlayerStats> stats) {
-        jdbcTemplate.batchUpdate("INSERT INTO stats (id, player_id, team_id, season, points, rebounds, assists, steals, blocks, fouls, turnovers, minutes_played) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        jdbcTemplate.batchUpdate("INSERT INTO stats (player_id, team_id, season, points, rebounds, assists, steals, blocks, fouls, turnovers, minutes_played) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 stats,
                 100,
                 (PreparedStatement ps, PlayerStats playerStats) -> {
-                    ps.setObject(1, playerStats.getId());
-                    ps.setObject(2, playerStats.getPlayer().getId());
-                    ps.setObject(3, playerStats.getTeam().getId());
-                    ps.setInt(4, playerStats.getSeason());
-                    ps.setInt(5, playerStats.getPoints());
-                    ps.setInt(6, playerStats.getRebounds());
-                    ps.setInt(7, playerStats.getAssists());
-                    ps.setInt(8, playerStats.getSteals());
-                    ps.setInt(9, playerStats.getBlocks());
-                    ps.setInt(10, playerStats.getFouls());
-                    ps.setInt(11, playerStats.getTurnovers());
-                    ps.setFloat(12, playerStats.getMinutesPlayed());
+                    ps.setObject(1, playerStats.getPlayer().getId());
+                    ps.setObject(2, playerStats.getTeam().getId());
+                    ps.setInt(3, playerStats.getSeason());
+                    ps.setInt(4, playerStats.getPoints());
+                    ps.setInt(5, playerStats.getRebounds());
+                    ps.setInt(6, playerStats.getAssists());
+                    ps.setInt(7, playerStats.getSteals());
+                    ps.setInt(8, playerStats.getBlocks());
+                    ps.setInt(9, playerStats.getFouls());
+                    ps.setInt(10, playerStats.getTurnovers());
+                    ps.setFloat(11, playerStats.getMinutesPlayed());
                 });
         return stats.size();
     }
@@ -70,6 +69,17 @@ public class JdbcStatsRepository implements GenericRepository<PlayerStats, UUID>
                         "WHERE s.id = ?;",
                 new PlayerStatsJoinRowMapper(), id);
         return Optional.ofNullable(stats);
+    }
+
+    public List<PlayerStats> findByPlayerName(String name, String surname) {
+        return jdbcTemplate.query("SELECT t.id, t.name, " +
+                        "p.id, p.name, p.surname, " +
+                        "s.id, s.player_id, s.team_id, s.season, s.points, s.rebounds, s.assists, s.steals, s.blocks, s.fouls, s.turnovers, s.minutes_played " +
+                        "FROM stats s " +
+                        "JOIN players p ON s.player_id = p.id " +
+                        "JOIN teams t ON s.team_id = t.id " +
+                        "WHERE p.name = ? AND p.surname = ?",
+                new PlayerStatsJoinRowMapper(), name, surname);
     }
 
     @Override
@@ -113,7 +123,7 @@ public class JdbcStatsRepository implements GenericRepository<PlayerStats, UUID>
 
     @Override
     public int deleteAll() {
-        return jdbcTemplate.update("DELETE from stats");
+        return jdbcTemplate.update("TRUNCATE TABLE stats RESTART IDENTITY CASCADE");
     }
 
     private static class StatsAggregationRowMapper implements RowMapper<StatsAggregation> {

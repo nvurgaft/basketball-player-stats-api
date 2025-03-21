@@ -18,10 +18,9 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -63,28 +62,33 @@ public class StatsControllerTest {
     @BeforeEach
     void setUp() {
         RestAssured.baseURI = "http://localhost:%1$s".formatted(port);
+        playerService.deleteAll();
+        teamService.deleteAll();
         statsService.deleteAll();
     }
 
     @Test
     void shouldGetAllStats() {
-        Player player = new Player(UUID.randomUUID(), "Michael", "Jordan");
-        Team team1 = new Team(UUID.randomUUID(), "Washington Wizards");
-        Team team2 = new Team(UUID.randomUUID(), "Chicago Bulls");
+        Player player = new Player("Michael", "Jordan");
+        playerService.addPlayer(player);
+        Team team1 = new Team("Washington Wizards");
+        Team team2 = new Team("Chicago Bulls");
+        teamService.addTeams(List.of(team1, team2));
+
+        Optional<Player> playerOptional = playerService.getPlayerByName("Michael", "Jordan");
+        Optional<Team> teamOptional1 = teamService.getTeamByName("Washington Wizards");
+        Optional<Team> teamOptional2 = teamService.getTeamByName("Chicago Bulls");
 
         List<PlayerStats> stats = List.of(
-                new PlayerStats(UUID.randomUUID(), player,
-                        team1,
+                new PlayerStats(playerOptional.orElseThrow(() -> new RuntimeException("Failed fetching player")),
+                        teamOptional1.orElseThrow(() -> new RuntimeException("Failed fetching team")),
                         1998,
                         22, 4, 2, 6, 12, 4, 1, 24),
-                new PlayerStats(UUID.randomUUID(), player,
-                        team2,
+                new PlayerStats(playerOptional.orElseThrow(() -> new RuntimeException("Failed fetching player")),
+                        teamOptional2.orElseThrow(() -> new RuntimeException("Failed fetching team")),
                         1999,
                         17, 4, 2, 6, 16, 2, 2, 47)
         );
-        playerService.addPlayer(player);
-        teamService.addTeams(List.of(team1, team2));
-
         statsService.addStats(stats);
 
         given()
@@ -98,12 +102,21 @@ public class StatsControllerTest {
 
     @Test
     void shouldFailValidation() {
-        Player player = new Player(UUID.randomUUID(), "Michael", "Jordan");
-        Team team = new Team(UUID.randomUUID(), "Washington Wizards");
+        Player player = new Player();
+        player.setName("Michael");
+        player.setSurname("Jordan");
+        Team team = new Team();
+        team.setName("Washington Wizards");
 
-        PlayerStats playerStats = new PlayerStats(UUID.randomUUID(),
-                player, team,
-                1998, 22, 4, 2, 6, 12, 999, 1, 24);
+        PlayerStats playerStats = new PlayerStats();
+        playerStats.setPlayer(player);
+        playerStats.setTeam(team);
+        playerStats.setSeason(1998);
+        playerStats.setAssists(12);
+        playerStats.setFouls(9999);
+        playerStats.setBlocks(12);
+        playerStats.setMinutesPlayed(43);
+        playerStats.setRebounds(11);
 
         playerService.addPlayer(player);
         teamService.addTeam(team);
@@ -116,90 +129,6 @@ public class StatsControllerTest {
                 .then()
                 .statusCode(400)
                 .contentType(ContentType.JSON);
-    }
-
-    @Test
-    void shouldGetPlayerSeasonAverage() {
-        Player player = new Player(UUID.randomUUID(), "Michael", "Jordan");
-        Team team = new Team(UUID.randomUUID(), "Chicago Bulls");
-        int season = 1999;
-
-        List<PlayerStats> stats = List.of(
-                new PlayerStats(UUID.randomUUID(), player,
-                        team,
-                        season,
-                        22, 4, 2, 6, 12, 4, 1, 24),
-                new PlayerStats(UUID.randomUUID(), player,
-                        team,
-                        season,
-                        17, 4, 2, 6, 16, 2, 2, 47)
-        );
-        playerService.addPlayer(player);
-        teamService.addTeam(team);
-        statsService.addStats(stats);
-
-        statsService.getPlayerSeasonAverage(player.getId(), season);
-
-        StatsAggregation responseBody = given()
-                .contentType(ContentType.JSON)
-                .queryParam("playerId", player.getId().toString())
-                .queryParam("season", season)
-                .when()
-                .get("/api/v1/stats/player/average")
-                .as(StatsAggregation.class);
-
-        Assertions.assertEquals(3, responseBody.getFouls(), 0.1);
-        Assertions.assertEquals(4, responseBody.getRebounds(), 0.1);
-        Assertions.assertEquals(14, responseBody.getBlocks(), 0.1);
-    }
-
-    @Test
-    void shouldGetTeamSeasonAverage() {
-        Player michaelJordan = new Player(UUID.randomUUID(), "Michael", "Jordan");
-        Player dennisRodman = new Player(UUID.randomUUID(), "Dennis", "Rodman");
-        Player scottiePippen = new Player(UUID.randomUUID(), "Scottie", "Pippen");
-        Team chicagoBulls = new Team(UUID.randomUUID(), "Chicago Bulls");
-        int season = 1999;
-
-        List<PlayerStats> stats = List.of(
-                new PlayerStats(UUID.randomUUID(), michaelJordan,
-                        chicagoBulls,
-                        season,
-                        34, 4, 2, 6, 9, 2, 1, 24),
-                new PlayerStats(UUID.randomUUID(), michaelJordan,
-                        chicagoBulls,
-                        season,
-                        31, 3, 2, 6, 13, 1, 2, 47),
-                new PlayerStats(UUID.randomUUID(), dennisRodman,
-                        chicagoBulls,
-                        season,
-                        22, 7, 2, 6, 12, 4, 1, 24),
-                new PlayerStats(UUID.randomUUID(), dennisRodman,
-                        chicagoBulls,
-                        season,
-                        17, 11, 2, 6, 16, 5, 2, 47),
-                new PlayerStats(UUID.randomUUID(), scottiePippen,
-                        chicagoBulls,
-                        season,
-                        24, 5, 2, 6, 8, 1, 1, 24)
-        );
-        playerService.addPlayers(List.of(michaelJordan, dennisRodman, scottiePippen));
-        teamService.addTeam(chicagoBulls);
-        statsService.addStats(stats);
-
-        statsService.getTeamSeasonAverage(chicagoBulls.getId(), season);
-
-        StatsAggregation responseBody = given()
-                .contentType(ContentType.JSON)
-                .queryParam("teamId", chicagoBulls.getId().toString())
-                .queryParam("season", season)
-                .when()
-                .get("/api/v1/stats/team/average")
-                .as(StatsAggregation.class);
-
-        Assertions.assertEquals(2.6, responseBody.getFouls(), 0.1);
-        Assertions.assertEquals(6, responseBody.getRebounds(), 0.1);
-        Assertions.assertEquals(11.6, responseBody.getBlocks(), 0.1);
     }
 
 }

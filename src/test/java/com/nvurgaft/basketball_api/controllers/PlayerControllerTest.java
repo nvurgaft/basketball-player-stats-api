@@ -18,7 +18,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasSize;
@@ -60,17 +60,18 @@ public class PlayerControllerTest {
     void setUp() {
         RestAssured.baseURI = "http://localhost:%1$s".formatted(port);
         playerService.deleteAll();
+        teamService.deleteAll();
     }
 
     @Test
     void shouldGetAllPlayers() {
-        Team team = new Team(UUID.randomUUID(), "Chicago Bulls");
+        Team team = new Team("Chicago Bulls");
         teamService.addTeam(team);
 
         List<Player> players = List.of(
-                new Player(UUID.randomUUID(), "Michael", "Jordan"),
-                new Player(UUID.randomUUID(), "Scottie", "Pippen"),
-                new Player(UUID.randomUUID(), "Dennis", "Rodman")
+                new Player("Michael", "Jordan"),
+                new Player("Scottie", "Pippen"),
+                new Player("Dennis", "Rodman")
         );
         playerService.addPlayers(players);
 
@@ -85,17 +86,19 @@ public class PlayerControllerTest {
 
     @Test
     void shouldGetPlayerById() {
-        Team team = new Team(UUID.randomUUID(), "Chicago Bulls");
+        Team team = new Team("Chicago Bulls 1");
         teamService.addTeam(team);
 
-        Player player1 = new Player(UUID.randomUUID(), "Michael", "Jordan");
-        Player player2 = new Player(UUID.randomUUID(), "Scottie", "Pippen");
-        Player player3 = new Player(UUID.randomUUID(), "Dennis", "Rodman");
+        Player player1 = new Player("Michael", "Jordan");
+        Player player2 = new Player("Scottie", "Pippen");
+        Player player3 = new Player("Dennis", "Rodman");
         playerService.addPlayers(List.of(player1, player2, player3));
 
+        Optional<Player> playerOptional = playerService.getPlayerByName("Scottie", "Pippen");
+        Player targetPlayer = playerOptional.orElseThrow(() -> new RuntimeException("Player not found"));
         given()
                 .contentType(ContentType.JSON)
-                .pathParam("id", player2.getId().toString())
+                .pathParam("id", targetPlayer.getId().toString())
                 .when()
                 .get("/api/v1/players/{id}")
                 .then()

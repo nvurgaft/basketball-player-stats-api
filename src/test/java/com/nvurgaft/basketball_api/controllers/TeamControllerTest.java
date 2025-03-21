@@ -16,7 +16,7 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.hasSize;
@@ -60,10 +60,10 @@ public class TeamControllerTest {
     @Test
     void shouldGetAllTeams() {
         List<Team> teams = List.of(
-                new Team(UUID.randomUUID(), "Chicago Bulls"),
-                new Team(UUID.randomUUID(), "Miami Heat"),
-                new Team(UUID.randomUUID(), "Charlotte Hornets"),
-                new Team(UUID.randomUUID(), "New York Knicks")
+                new Team("Chicago Bulls"),
+                new Team("Miami Heat"),
+                new Team("Charlotte Hornets"),
+                new Team("New York Knicks")
         );
         teamService.addTeams(teams);
 
@@ -78,18 +78,49 @@ public class TeamControllerTest {
 
     @Test
     void shouldGetTeamById() {
-        Team team1 = new Team(UUID.randomUUID(), "Miami Heat");
-        Team team2 = new Team(UUID.randomUUID(), "Los Angeles Lakers");
+        Team team1 = new Team("Miami Heat");
+        Team team2 = new Team("Los Angeles Lakers");
         teamService.addTeams(List.of(team1, team2));
+
+        Optional<Team> teamOptional = teamService.getTeamByName("Los Angeles Lakers");
+        Team team = teamOptional.orElseThrow(() -> new NullPointerException("No team found"));
 
         given()
                 .contentType(ContentType.JSON)
-                .pathParam("id", team2.getId().toString())
+                .pathParam("id", team.getId().toString())
                 .when()
                 .get("/api/v1/teams/{id}")
                 .then()
                 .statusCode(200)
                 .body("name", org.hamcrest.Matchers.containsString("Los Angeles Lakers"));
+    }
+
+    @Test
+    void shouldPostAValidTeam() {
+        Team team = new Team("Miami Heat");
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(team)
+                .when()
+                .post("/api/v1/teams/")
+                .then()
+                .statusCode(200);
+    }
+
+    @Test
+    void shouldFailAddingInvalidTeam() {
+        // no team name, should fail
+        Team team = new Team(null);
+
+        given()
+                .contentType(ContentType.JSON)
+                .body(team)
+                .when()
+                .post("/api/v1/teams/")
+                .then()
+                .statusCode(400)
+                .contentType(ContentType.JSON);
     }
 
 }

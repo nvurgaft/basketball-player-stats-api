@@ -12,6 +12,9 @@ import org.springframework.data.redis.serializer.RedisSerializationContext;
 import java.time.Duration;
 import java.util.Collections;
 
+/**
+ * Beans used to configure Redis caching
+ */
 @Configuration
 public class CacheConfig {
 
