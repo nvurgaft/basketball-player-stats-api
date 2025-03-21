@@ -2,14 +2,16 @@ package com.nvurgaft.basketball_api.controllers;
 
 import com.nvurgaft.basketball_api.model.Player;
 import com.nvurgaft.basketball_api.model.PlayerStats;
-import com.nvurgaft.basketball_api.model.StatsAggregation;
 import com.nvurgaft.basketball_api.model.Team;
 import com.nvurgaft.basketball_api.services.PlayerService;
 import com.nvurgaft.basketball_api.services.StatsService;
 import com.nvurgaft.basketball_api.services.TeamService;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;

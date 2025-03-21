@@ -1,4 +1,5 @@
 
+-- Schema creation
 CREATE TABLE IF NOT EXISTS teams (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR (50) NOT NULL UNIQUE
@@ -25,6 +26,8 @@ CREATE TABLE IF NOT EXISTS stats (
     minutes_played FLOAT NOT NULL,
     FOREIGN KEY (player_id) REFERENCES players(id) ON DELETE CASCADE,
     FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE
-)
+);
 
---CREATE INDEX players_id ON players(name);
+-- Indices creation
+CREATE INDEX idx_team_names ON teams(name);
+CREATE INDEX idx_player_names ON players(name, surname);
