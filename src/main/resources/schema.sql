@@ -29,5 +29,5 @@ CREATE TABLE IF NOT EXISTS stats (
 );
 
 -- Indices creation
-CREATE INDEX idx_team_names ON teams(name);
-CREATE INDEX idx_player_names ON players(name, surname);
+CREATE INDEX IF NOT EXISTS idx_team_names ON teams(name);
+CREATE INDEX IF NOT EXISTS idx_player_names ON players(name, surname);

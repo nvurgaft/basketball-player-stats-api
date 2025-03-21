@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.nvurgaft</groupId>
     <artifactId>basketball-api</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>basketball-api</name>
     <description>A basketball players database and backend</description>
     <url/>
@@ -70,6 +70,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.8.5</version>
         </dependency>
 
         <!-- Testing dependencies -->

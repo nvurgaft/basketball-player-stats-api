@@ -21,7 +21,6 @@ public class PlayerService {
 
     @Cacheable(value = "players", key="'all'")
     public List<Player> getAll() {
-        // TODO: dev only, remove afterwards
         return repository.findAll();
     }
 
