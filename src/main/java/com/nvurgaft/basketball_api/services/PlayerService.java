@@ -19,17 +19,17 @@ public class PlayerService {
 
     private JdbcPlayerRepository repository;
 
-    @Cacheable(value = "players", key="'all'")
+    @Cacheable(value = "players", key = "'all'")
     public List<Player> getAll() {
         return repository.findAll();
     }
 
-    @Cacheable(value = "players", key="#id")
+    @Cacheable(value = "players", key = "#id")
     public Optional<Player> getPlayerById(@NonNull UUID id) {
         return repository.findById(id);
     }
 
-    @Cacheable(value = "players", key="#name + '-' + #surname")
+    @Cacheable(value = "players", key = "#name + '-' + #surname")
     public Optional<Player> getPlayerByName(@NonNull String name, String surname) {
         return repository.findByName(name, surname);
     }
@@ -38,18 +38,21 @@ public class PlayerService {
         repository.saveAll(players);
     }
 
-    public void addPlayer(@NonNull Player player) {
-        repository.save(player);
+    public boolean addPlayer(@NonNull Player player) {
+        int affected = repository.save(player);
+        return affected == 1;
     }
 
-    @CachePut(cacheNames="players", key="#player.id")
-    public void updatePlayer(@NonNull Player player) {
-        repository.save(player);
+    @CachePut(cacheNames = "players", key = "#player.id")
+    public boolean updatePlayer(@NonNull Player player) {
+        int affected = repository.save(player);
+        return affected == 1;
     }
 
     @CacheEvict(value = "players", key = "#id")
-    public void deletePlayer(UUID id) {
-        repository.deleteById(id);
+    public boolean deletePlayer(UUID id) {
+        int affected = repository.deleteById(id);
+        return affected == 1;
     }
 
     @CacheEvict(value = "players", allEntries = true)

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -53,6 +54,20 @@ public class TeamController {
         }
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteTeamById(@PathVariable(required = false) UUID id) {
+        try {
+            boolean removed = teamService.deleteTeam(id);
+            if (removed) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>("deleted", HttpStatus.OK);
+        } catch (Throwable t) {
+            log.error("Failed deleting team with id {}", id, t);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping(value = "/", produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> addTeam(
             @Valid @NotNull(message = "Team cannot be null") @RequestBody Team team
@@ -66,6 +81,25 @@ public class TeamController {
             return new ResponseEntity<>("ok", HttpStatus.OK);
         } catch (Throwable t) {
             log.error("Failed adding team with id {}", team.getId(), t);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @PutMapping(value = "/", produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> updateTeamById(@Valid @NotNull @PathVariable(required = true) Team team) {
+        try {
+            if (Objects.isNull(team.getId())) {
+                log.error("Team ID was not provided");
+                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            }
+            boolean added = teamService.updateTeam(team);
+            if (!added) {
+                return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+            }
+            return new ResponseEntity<>("ok", HttpStatus.OK);
+        } catch (Throwable t) {
+            log.error("Failed updating team", t);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

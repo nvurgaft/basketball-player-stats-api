@@ -1,7 +1,6 @@
 package com.nvurgaft.basketball_api.services;
 
 import com.nvurgaft.basketball_api.model.PlayerStats;
-import com.nvurgaft.basketball_api.model.StatsAggregation;
 import com.nvurgaft.basketball_api.repositories.JdbcStatsRepository;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -20,14 +19,24 @@ public class StatsService {
 
     private JdbcStatsRepository repository;
 
-    @Cacheable(value = "stats", key = "#name + '-' + #surname")
-    public List<PlayerStats> getPlayerStats(String name, String surname) {
-        return repository.findByPlayerName(name, surname);
-    }
-
     @Cacheable(value = "stats", key = "#stat.id")
     public Optional<PlayerStats> getStatsById(@NonNull UUID id) {
         return repository.findById(id);
+    }
+
+    @Cacheable(value = "stats", key = "#player.id")
+    public List<PlayerStats> getStatsByPlayerId(@NonNull UUID id) {
+        return repository.findByPlayerId(id);
+    }
+
+    @Cacheable(value = "stats", key = "#playerId + '-' + #teamId")
+    public List<PlayerStats> getPlayerTeamStats(@NonNull UUID playerId, @NonNull UUID teamId) {
+        return repository.findPlayerTeamStatsById(playerId, teamId);
+    }
+
+    @Cacheable(value = "stats", key = "#playerId + '-' + #season")
+    public List<PlayerStats> getPlayerSeasonStats(@NonNull UUID id, int season) {
+        return repository.findPlayerSeasonStatsById(id, season);
     }
 
     public List<PlayerStats> getAllStats() {
@@ -52,8 +61,8 @@ public class StatsService {
 
     @CacheEvict(value = "stats", key = "#stat.id")
     public boolean deleteStat(@NonNull UUID id) {
-        int result = repository.deleteById(id);
-        return result == 1;
+        int affected = repository.deleteById(id);
+        return affected == 1;
     }
 
     @CacheEvict(value = "stats", allEntries = true)

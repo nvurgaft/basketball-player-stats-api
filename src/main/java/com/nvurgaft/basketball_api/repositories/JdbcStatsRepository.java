@@ -71,15 +71,37 @@ public class JdbcStatsRepository implements GenericRepository<PlayerStats, UUID>
         return Optional.ofNullable(stats);
     }
 
-    public List<PlayerStats> findByPlayerName(String name, String surname) {
+    public List<PlayerStats> findByPlayerId(UUID playerId) {
         return jdbcTemplate.query("SELECT t.id, t.name, " +
                         "p.id, p.name, p.surname, " +
                         "s.id, s.player_id, s.team_id, s.season, s.points, s.rebounds, s.assists, s.steals, s.blocks, s.fouls, s.turnovers, s.minutes_played " +
                         "FROM stats s " +
                         "JOIN players p ON s.player_id = p.id " +
                         "JOIN teams t ON s.team_id = t.id " +
-                        "WHERE p.name = ? AND p.surname = ?",
-                new PlayerStatsJoinRowMapper(), name, surname);
+                        "WHERE p.id = ?;",
+                new PlayerStatsJoinRowMapper(), playerId);
+    }
+
+    public List<PlayerStats> findPlayerTeamStatsById(UUID playerId, UUID teamId) {
+        return jdbcTemplate.query("SELECT t.id, t.name, " +
+                        "p.id, p.name, p.surname, " +
+                        "s.id, s.player_id, s.team_id, s.season, s.points, s.rebounds, s.assists, s.steals, s.blocks, s.fouls, s.turnovers, s.minutes_played " +
+                        "FROM stats s " +
+                        "JOIN players p ON s.player_id = p.id " +
+                        "JOIN teams t ON s.team_id = t.id " +
+                        "WHERE p.id = ? AND t.id;",
+                new PlayerStatsJoinRowMapper(), playerId, teamId);
+    }
+
+    public List<PlayerStats> findPlayerSeasonStatsById(UUID playerId, int season) {
+        return jdbcTemplate.query("SELECT t.id, t.name, " +
+                        "p.id, p.name, p.surname, " +
+                        "s.id, s.player_id, s.team_id, s.season, s.points, s.rebounds, s.assists, s.steals, s.blocks, s.fouls, s.turnovers, s.minutes_played " +
+                        "FROM stats s " +
+                        "JOIN players p ON s.player_id = p.id " +
+                        "JOIN teams t ON s.team_id = t.id " +
+                        "WHERE p.id = ? AND s.season = ?;",
+                new PlayerStatsJoinRowMapper(), playerId, season);
     }
 
     @Override
