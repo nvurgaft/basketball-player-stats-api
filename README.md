@@ -24,3 +24,40 @@ E2E tests.
 This application has Docker compatibility
 
 This application uses Java 21 albeit older versions will probably work.
+
+
+## Deployment
+
+This application has a `Dockerfile`, `docker-compose.yml` and a Kubernetes service descriptor (`kube.yaml`).
+
+### Docker
+
+TODO: add
+
+### Minikube
+
+Set `pwd` to the project root directory Build the Docker Image
+
+    docker build -t nvurgaft/basketball-api:latest .
+
+Push the Docker Image to a repository
+
+    docker push nvurgaft/basketball-api
+
+Start Minikube
+
+    minikube start
+
+Deploy the service
+
+    kubectl apply -f kube.yaml 
+
+You can verify the application is deployed using the Minikube Dashboard
+
+First start the dashboard
+
+    minikube dashboard
+
+Than, use the browser to open up the UI
+
+    http://127.0.0.1:39545/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/
