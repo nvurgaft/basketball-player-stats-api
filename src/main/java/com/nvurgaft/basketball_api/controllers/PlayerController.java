@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,7 @@ import java.util.UUID;
 @Log4j2
 @RestController
 @AllArgsConstructor
+@Tag(name = "Players", description = "Player API")
 @RequestMapping("api/v1/players")
 public class PlayerController {
 

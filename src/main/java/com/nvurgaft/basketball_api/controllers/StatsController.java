@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -24,6 +25,7 @@ import java.util.UUID;
 @Log4j2
 @AllArgsConstructor
 @RestController
+@Tag(name = "Statistics", description = "Statistics API")
 @RequestMapping("api/v1/stats")
 public class StatsController {
 
