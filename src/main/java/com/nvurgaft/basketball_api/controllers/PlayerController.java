@@ -2,6 +2,10 @@ package com.nvurgaft.basketball_api.controllers;
 
 import com.nvurgaft.basketball_api.model.Player;
 import com.nvurgaft.basketball_api.services.PlayerService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -24,6 +28,14 @@ public class PlayerController {
 
     private PlayerService playerService;
 
+    @Operation(summary = "Return all the players data")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = {@Content(mediaType = "text/plain")}),
+            @ApiResponse(responseCode = "204", description = "No content",
+                    content = @Content(mediaType = "text/plain")),
+            @ApiResponse(responseCode = "400", description = "Validation error"),
+            @ApiResponse(responseCode = "500", description = "Something went wrong")})
     @GetMapping("/")
     public ResponseEntity<List<Player>> getAll() {
         try {
@@ -38,12 +50,20 @@ public class PlayerController {
         }
     }
 
+    @Operation(summary = "Return a player by his ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = {@Content(mediaType = "text/plain")}),
+            @ApiResponse(responseCode = "404", description = "Not found",
+                    content = @Content(mediaType = "text/plain")),
+            @ApiResponse(responseCode = "400", description = "Validation error"),
+            @ApiResponse(responseCode = "500", description = "Something went wrong")})
     @GetMapping("/{id}")
     public ResponseEntity<Player> getPlayerById(@PathVariable(required = true) UUID id) {
         try {
             Optional<Player> player = playerService.getPlayerById(id);
             if (player.isEmpty()) {
-                return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
             }
             return new ResponseEntity<>(player.get(), HttpStatus.OK);
         } catch (Throwable t) {
@@ -52,12 +72,21 @@ public class PlayerController {
         }
     }
 
+    @Operation(summary = "Delete a player by his ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = {@Content(mediaType = "text/plain")}),
+            @ApiResponse(responseCode = "304", description = "Not modified",
+                    content = @Content(mediaType = "text/plain")),
+            @ApiResponse(responseCode = "400", description = "Validation error"),
+            @ApiResponse(responseCode = "500", description = "Something went wrong")})
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteTeamById(@PathVariable(required = false) UUID playerId) {
+    public ResponseEntity<String> deleteTeamById(
+            @Valid @NotNull(message = "Player ID is required") @PathVariable(required = true) UUID playerId) {
         try {
             boolean removed = playerService.deletePlayer(playerId);
             if (removed) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
             }
             return new ResponseEntity<>("deleted", HttpStatus.OK);
         } catch (Throwable t) {
@@ -66,12 +95,21 @@ public class PlayerController {
         }
     }
 
+    @Operation(summary = "Create a new player")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = {@Content(mediaType = "text/plain")}),
+            @ApiResponse(responseCode = "304", description = "Not modified",
+                    content = @Content(mediaType = "text/plain")),
+            @ApiResponse(responseCode = "400", description = "Validation error"),
+            @ApiResponse(responseCode = "500", description = "Something went wrong")})
     @PostMapping(value = "/", produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> getPlayerById(@Valid @NotNull @PathVariable(required = true) Player player) {
+    public ResponseEntity<String> addNewPlayer(
+            @Valid @NotNull(message = "Player is required") @PathVariable(required = true) Player player) {
         try {
             boolean added = playerService.addPlayer(player);
             if (!added) {
-                return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>(null, HttpStatus.NOT_MODIFIED);
             }
             return new ResponseEntity<>("ok", HttpStatus.OK);
         } catch (Throwable t) {
@@ -80,16 +118,26 @@ public class PlayerController {
         }
     }
 
+    @Operation(summary = "Update an existing player")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = {@Content(mediaType = "text/plain")}),
+            @ApiResponse(responseCode = "404", description = "Not found",
+                    content = @Content(mediaType = "text/plain")),
+            @ApiResponse(responseCode = "400", description = "Validation error"),
+            @ApiResponse(responseCode = "500", description = "Something went wrong")})
     @PutMapping(value = "/", produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> updatePlayerById(@Valid @NotNull @PathVariable(required = true) Player player) {
+    public ResponseEntity<String> updatePlayer(
+            @Valid @NotNull(message = "Player is required") @PathVariable(required = true) Player player) {
         try {
             if (Objects.isNull(player.getId())) {
                 log.error("Player ID was not provided");
                 return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
             }
+
             boolean added = playerService.updatePlayer(player);
             if (!added) {
-                return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
             }
             return new ResponseEntity<>("ok", HttpStatus.OK);
         } catch (Throwable t) {

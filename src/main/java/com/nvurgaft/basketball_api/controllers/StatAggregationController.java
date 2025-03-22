@@ -2,6 +2,13 @@ package com.nvurgaft.basketball_api.controllers;
 
 import com.nvurgaft.basketball_api.model.StatsAggregation;
 import com.nvurgaft.basketball_api.services.AggregationsService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -22,10 +29,18 @@ public class StatAggregationController {
 
     private AggregationsService aggregationsService;
 
+    @Operation(summary = "Return the season averages for a player")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = {@Content(mediaType = "text/plain")}),
+            @ApiResponse(responseCode = "204", description = "No content",
+                    content = @Content(mediaType = "text/plain")),
+            @ApiResponse(responseCode = "400", description = "Validation error"),
+            @ApiResponse(responseCode = "500", description = "Something went wrong")})
     @GetMapping("/player/average")
     public ResponseEntity<StatsAggregation> getPlayerSeasonAverage(
-            @RequestParam(required = true) UUID playerId,
-            @RequestParam(required = true) int season
+            @Valid @NotNull(message = "Player ID is required") @RequestParam(required = true) UUID playerId,
+            @Valid @Min(value = 1800, message = "Min year value is 1800") @RequestParam(required = true) int season
     ) {
         try {
             Optional<StatsAggregation> aggregation = aggregationsService.getPlayerSeasonAverage(playerId, season);
@@ -39,10 +54,18 @@ public class StatAggregationController {
         }
     }
 
+    @Operation(summary = "Return the season averages for a team")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "OK",
+                    content = {@Content(mediaType = "text/plain")}),
+            @ApiResponse(responseCode = "204", description = "No content",
+                    content = @Content(mediaType = "text/plain")),
+            @ApiResponse(responseCode = "400", description = "Validation error"),
+            @ApiResponse(responseCode = "500", description = "Something went wrong")})
     @GetMapping("/team/average")
     public ResponseEntity<StatsAggregation> getTeamSeasonAverage(
-            @RequestParam(required = true) UUID teamId,
-            @RequestParam(required = true) int season) {
+            @Valid @NotNull(message = "Team ID is required") @RequestParam(required = true) UUID teamId,
+            @Valid @Min(value = 1800, message = "Min year value is 1800") @RequestParam(required = true) int season) {
         try {
             Optional<StatsAggregation> aggregation = aggregationsService.getTeamSeasonAverage(teamId, season);
             if (aggregation.isEmpty()) {
